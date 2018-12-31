@@ -1,0 +1,8 @@
+venv
+*.pyc
+*.csv
+*.pgp
+src
+*.key
+settings.py
+zappa_settings.json
