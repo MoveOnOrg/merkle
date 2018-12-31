@@ -9,8 +9,8 @@ jobs:
   include:
   - stage: before_install
     if: branch = master
-    script: openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv
-      -in zappa_settings.json.enc -out zappa_settings.json -d
+    script: openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv -in settings.py.enc -out settings.py -d
+    script: openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv -in zappa_settings.json.enc -out zappa_settings.json -d
   - stage: install
     script: pip install -r requirements.txt
   - stage: deploy
