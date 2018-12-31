@@ -12,6 +12,8 @@ stages:
   script: openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv -in zappa_settings.json.enc -out zappa_settings.json -d
 - name: install
   script: pip install -r requirements.txt
+- name: test
+  script: skip
 - name: deploy
   if: branch = master
   script: zappa update
