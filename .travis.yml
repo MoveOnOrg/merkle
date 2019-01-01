@@ -6,10 +6,8 @@ env:
   - secure: b6wyzVJtTnYJMc8eaNf/3KFqcPULyqFd9GRyWaV5ZQvJmMoZ0oLXRc44flrX9WtLqQ4FwSj8wbVxGfPBwDwS2whhvl/8rRLwWH4WqvCmEpEKhbVXj1alPwlej/DWTrGN3/KpRKOtvGZvYHa5u+me3DJdrUcZl7T4Z2Kf1+x4CqF4zLi+RjSXqP7KWfHryVEh5xpmuTQCmTipmyPM/BiYr4W0Du38FvBDv42gMxWD+SUJarjXMlvMaGsbq5Q/PVxgEy1dslsdCdg3OO86K6SdQZvjs5bWBIaXgoBmOyf4iECOLpRIvUJUCEESLtzYEhNOX9MQ1k5Ynm/MDGWtmIxPhYVBs36+iFgZGEvL6CUkdzPim8kamtwG+R4oWMyOFldQpPk65CJd2R8NgCfN2UJjTDAIGkYFaNmzeMPDP3MOM0D8XTsB+n+GI7OFX7NBnFnpQ+WoB3QAz+ft/dBdE4HX+2E8otU6IblPYBWsnlmJ7zZOenkDn70lvlxrX2UaEC+/Tkd/nyFfYq0xQz+2k9uQX7pfIfnWp3UjaJn4Ujy3b5+tWB0aq0tBZQgYuFLyJB5Zr0hkc++nI9DcqZAmULdY/ZVdY6dF4I+05PzT0ssezXkdb8vM828PMNC4Y264bnarIb4hq7WTZrwoJcTqNZYWd+/0PMnUMCaFvoXNjwhSRYA=
   - secure: kzAMFY6JQr42EkRzcZe9LL6ZarY+bx6WakF3KohzWqtzqls1gyLmbk5RsBQgHnZF2hMayGQsxPCp+0XAgUu7ZLDQigKRxhYEWKFS5vUCX0t9IJNbvp0XvBm5QMuWJJurGfH0Vk7fknCSD5jxDKemJ9aVYhgA8sOvCBy0JWEttfatyANsn6Y8LLJIRnISx/YOqnwxH+y+J+s3pRvB9BtCshL9S7SdEw8B75HdfAIq2x0Ww3FpCGy/6DEhArT1vBeMotVxlWUExGKgw60SekLjN6jAR19y26BM0nOnrABogdgZjje8AmJFwhkGn3dyaNJ6z7Fh8v1uI5HFdX/duOkr96nSnyT8plNyaUC8ZHqhqUs6nV/XWx+ABFw6dA5B4rHiYZVBotStMzATm3f3iaucZUWkJa6E2kVfju32IMrWIZbBUgmRpISeBMmqmOHk0R0bvIOqzHGBQbqfHidUyhlrZ63b/AKEy4wd8qG9iUr+hD/rHq+UWg9xD0q/U99wldZB0ZXgWQ8j4glyI4S7UW/uJuriP6J8oGbvR98qj3feweYAImUAPvFD6oLlNjFb+xqP+Il8oA9gBXsNpv2myClrcSMKbySGjv+F1tG2tdE1GKRy4CaXW5mP0PNUv57k++1WJNx0rkmVJMaRilrBmqn7Hgkt2QAhBfzz49Jym0B/TgQ=
 before_install:
-- openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv
-  -in settings.py.enc -out settings.py -d
-- openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv
-  -in zappa_settings.json.enc -out zappa_settings.json -d
+- openssl aes-256-cbc -K $encrypted_c405c51cdabc_key -iv $encrypted_c405c51cdabc_iv -in secrets.tar.enc -out secrets.tar -d
+- tar xvf secrets.tar
 install:
 - pip install -r requirements.txt
 after_success:
