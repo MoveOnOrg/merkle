@@ -10,5 +10,7 @@ before_install:
 - tar xvf secrets.tar
 install:
 - pip install -r requirements.txt
+script:
+  - pytest
 after_success:
 - test $TRAVIS_BRANCH = "master" && zappa update
