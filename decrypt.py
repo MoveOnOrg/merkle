@@ -12,13 +12,13 @@ else:
     settings = {}
 
 ARG_DEFINITIONS = {
-    'DATE': 'Date of files to decrypt.',
+    'FILE': 'File to decrypt.',
     'PGP_KEY': 'Full key for PGP',
     'PGP_PASS': 'Pass phrase for PGP'
 }
 
 REQUIRED_ARGS = [
-    'DATE', 'PGP_KEY', 'PGP_PASS'
+    'FILE', 'PGP_KEY', 'PGP_PASS'
 ]
 
 def main(args):
@@ -30,22 +30,18 @@ def main(args):
             all_required_args_set = False
 
     if all_required_args_set:
-        rt_message = pgpy.PGPMessage.from_file('/tmp/MOVEONRT%s.csv.pgp' % args.DATE)
-        dm_message = pgpy.PGPMessage.from_file('/tmp/MOVEONDM%s.csv.pgp' % args.DATE)
+        message = pgpy.PGPMessage.from_file('/tmp/%s' % args.FILE)
         private_key, _ = pgpy.PGPKey.from_blob(args.PGP_KEY)
 
         with private_key.unlock(args.PGP_PASS):
-            rt_csv = private_key.decrypt(rt_message).message.decode("utf-8")
-            dm_csv = private_key.decrypt(dm_message).message.decode("utf-8")
+            csv = private_key.decrypt(message).message.decode("utf-8")
 
-        rt_file = open("/tmp/MOVEONRT%s.csv" % args.DATE, "w")
-        rt_file.write(rt_csv)
-        rt_file.close()
-        dm_file = open("/tmp/MOVEONDM%s.csv" % args.DATE, "w")
-        dm_file.write(dm_csv)
-        dm_file.close()
+        new_file_name = '.'.join(args.FILE.split('.')[:-1])
+        file = open("/tmp/%s" % new_file_name, "w")
+        file.write(csv)
+        file.close()
 
-        return ['MOVEONDM%s.csv' % args.DATE, 'MOVEONRT%s.csv' % args.DATE]
+        return new_file_name
 
 if __name__ == '__main__':
     """

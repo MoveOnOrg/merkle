@@ -65,7 +65,6 @@ def main(args):
             all_required_args_set = False
 
     if all_required_args_set:
-        all_split_files = []
         print('Checking date last run...')
         last_run = date_iso_to_short(get_last.main(args))
         print('Checking for new dates since %s...' % last_run)
@@ -73,26 +72,29 @@ def main(args):
         new_dates = check.main(args)
         if len(new_dates) > 0:
             for date in new_dates:
+                all_split_files = []
                 args.DATE = date
                 print('Downloading for %s...' % date)
                 files = download.main(args)
                 if len(files) > 0:
-                    print('Decrypting for %s...' % date)
-                    decrypted_files = decrypt.main(args)
-                    if len(decrypted_files) > 0:
-                        print('Splitting for %s...' % date)
-                        for decrypted_file in decrypted_files:
+                    for encrypted_file in files:
+                        args.FILE = encrypted_file
+                        print('Decrypting %s...' % args.FILE)
+                        decrypted_file = decrypt.main(args)
+                        if decrypted_file:
+                            print('Splitting %s...' % decrypted_file)
                             args.CSV = decrypted_file
                             split_files = split.main(args)
                             all_split_files = all_split_files + split_files
-                        print('Importing for %s...' % date)
-                        for split_file in all_split_files:
-                            args.CSV = split_file
-                            import_to_ak.main(args)
-                            if "donations.csv" in args.CSV:
-                                args.TEXT = summarize.main(args)
-                                print('Notifying...')
-                                notify.main(args)
+                if len(all_split_files):
+                    print('Importing for %s...' % date)
+                    for split_file in all_split_files:
+                        args.CSV = split_file
+                        import_to_ak.main(args)
+                        if "donations.csv" in args.CSV:
+                            args.TEXT = summarize.main(args)
+                            print('Notifying...')
+                            notify.main(args)
             iso_dates = sorted([date_short_to_iso(date) for date in new_dates])
             args.LAST_RUN_DATE = iso_dates[-1]
             print('Setting last import date to %s...' % args.LAST_RUN_DATE)
