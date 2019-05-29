@@ -3,4 +3,4 @@ paramiko==2.4.2
 PGPy==0.4.3
 psycopg2-binary==2.7.6.1
 slackweb==1.0.5
-zappa==0.46.2
+zappa==0.48.2
