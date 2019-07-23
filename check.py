@@ -37,7 +37,7 @@ def main(args):
         transport = paramiko.Transport((args.SFTP_HOST, 22))
         transport.connect(username = args.SFTP_USER, password = args.SFTP_PASS)
         sftp = paramiko.SFTPClient.from_transport(transport)
-        sftp.chdir('Outgoing File')
+        sftp.chdir('Outgoing Files')
         file_list = sftp.listdir('.')
         new_dates = []
         for file_name in file_list:
