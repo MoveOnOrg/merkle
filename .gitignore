@@ -6,3 +6,4 @@ src
 *.key
 settings.py
 zappa_settings.json
+.coverage
