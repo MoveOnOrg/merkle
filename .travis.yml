@@ -14,5 +14,6 @@ install:
 script:
 - pytest --cov=.
 after_success:
-- test $TRAVIS_BRANCH = "main" && zappa update
+- export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+- test $BRANCH = "main" && zappa update
 - COVERALLS_REPO_TOKEN=$coveralls_token coveralls
