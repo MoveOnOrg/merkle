@@ -34,9 +34,17 @@ def main(args):
         address_columns = [
             'address1', 'address2', 'city', 'state', 'zip'
         ]
-        files = {'donations': [], 'invalid': [], 'address': []}
+        files = {
+            'donations-user': [],
+            'donations-email': [],
+            'invalid-user': [],
+            'invalid-email': [],
+            'address-user': [],
+            'address-email': []
+        }
         for column in set_only_columns:
-            files[column] = []
+            files['%s-user' % column] = []
+            files['%s-email' % column] = []
 
         with open('%s%s' % (args.BASE_DIRECTORY, args.CSV), 'rt') as csvfile:
             csvreader = csv.DictReader(csvfile)
@@ -44,40 +52,76 @@ def main(args):
                 user_id = row.get('user_id')
                 donation_payment_account = row.get('donation_payment_account')
                 source = row.get('source')
+                email = row.get('Email')
                 if float(row.get('donation_amount', 0)) > 0:
-                    files['donations'].append({
-                        'user_id': user_id, 'source': source,
-                        'donation_amount': row.get('donation_amount'),
-                        'donation_import_id': row.get('donation_import_id'),
-                        'donation_date': row.get('donation_date'),
-                        'donation_currency': row.get('donation_currency'),
-                        'donation_payment_account': donation_payment_account,
-                        'action_occupation': row.get('action_occupation'),
-                        'action_employer': row.get('action_employer'),
-                    })
+                    if user_id != '':
+                        files['donations-user'].append({
+                            'user_id': user_id, 'source': source,
+                            'donation_amount': row.get('donation_amount'),
+                            'donation_import_id': row.get('donation_import_id'),
+                            'donation_date': row.get('donation_date'),
+                            'donation_currency': row.get('donation_currency'),
+                            'donation_payment_account': donation_payment_account,
+                            'action_occupation': row.get('action_occupation'),
+                            'action_employer': row.get('action_employer'),
+                        })
+                    elif email != '':
+                        files['donations-email'].append({
+                            'email': email, 'source': source,
+                            'donation_amount': row.get('donation_amount'),
+                            'donation_import_id': row.get('donation_import_id'),
+                            'donation_date': row.get('donation_date'),
+                            'donation_currency': row.get('donation_currency'),
+                            'donation_payment_account': donation_payment_account,
+                            'action_occupation': row.get('action_occupation'),
+                            'action_employer': row.get('action_employer'),
+                        })
                 for column in set_only_columns:
                     row_column = row.get(column, '')
                     if row_column != '':
-                        files[column].append({
-                            'user_id': user_id, 'source': source,
-                            column: row.get(column),
-                        })
+                        if user_id != '':
+                            files['%s-user' % column].append({
+                                'user_id': user_id, 'source': source,
+                                column: row.get(column),
+                            })
+                        elif email != '':
+                            files['%s-email' % column].append({
+                                'email': email, 'source': source,
+                                column: row.get(column),
+                            })
 
                 if row.get('address1', False) == 'Invalid':
-                    files['invalid'].append({
-                        'user_id': user_id, 'source': source,
-                        'address1': '-', 'address2': '-', 'city': '-',
-                        'state': '-', 'zip': '-'
-                    })
+                    if user_id != '':
+                        files['invalid-user'].append({
+                            'user_id': user_id, 'source': source,
+                            'address1': '-', 'address2': '-', 'city': '-',
+                            'state': '-', 'zip': '-'
+                        })
+                    elif email != '':
+                        files['invalid-email'].append({
+                            'email': email, 'source': source,
+                            'address1': '-', 'address2': '-', 'city': '-',
+                            'state': '-', 'zip': '-'
+                        })
                 elif row.get('address1', False):
-                    files['address'].append({
-                        'user_id': user_id, 'source': source,
-                        'address1': row.get('address1', ''),
-                        'address2': row.get('address2', ''),
-                        'city': row.get('city', ''),
-                        'state': row.get('state', ''),
-                        'zip': row.get('zip', '')
-                    })
+                    if user_id != '':
+                        files['address-user'].append({
+                            'user_id': user_id, 'source': source,
+                            'address1': row.get('address1', ''),
+                            'address2': row.get('address2', ''),
+                            'city': row.get('city', ''),
+                            'state': row.get('state', ''),
+                            'zip': row.get('zip', '')
+                        })
+                    elif email != '':
+                        files['address-email'].append({
+                            'email': email, 'source': source,
+                            'address1': row.get('address1', ''),
+                            'address2': row.get('address2', ''),
+                            'city': row.get('city', ''),
+                            'state': row.get('state', ''),
+                            'zip': row.get('zip', '')
+                        })
 
         filenames = []
 

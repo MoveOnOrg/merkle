@@ -92,7 +92,7 @@ def main(args):
                     for split_file in date_split_files:
                         args.CSV = split_file
                         import_to_ak.main(args)
-                        if "donations.csv" in args.CSV:
+                        if "donations-email.csv" in args.CSV or "donations-user.csv" in args.CSV:
                             args.TEXT = summarize.main(args)
                             print('Notifying...')
                             notify.main(args)
