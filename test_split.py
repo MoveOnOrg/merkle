@@ -32,6 +32,7 @@ class Test:
                 'home_phone': ''
             })
         args = {
+            'BASE_DIRECTORY': '/tmp/',
             'CSV': 'merkletest.csv'
         }
         args = Struct(**args)

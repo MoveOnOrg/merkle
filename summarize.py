@@ -10,12 +10,11 @@ else:
     settings = {}
 
 ARG_DEFINITIONS = {
+    'BASE_DIRECTORY': 'Path to where files are located.',
     'CSV': 'CSV of donation records.'
 }
 
-REQUIRED_ARGS = [
-    'CSV'
-]
+REQUIRED_ARGS = ['BASE_DIRECTORY', 'CSV']
 
 def main(args):
     all_required_args_set = True
@@ -27,7 +26,7 @@ def main(args):
 
     if all_required_args_set:
         donations = []
-        with open('/tmp/' + args.CSV, 'rt') as csvfile:
+        with open('%s%s' % (args.BASE_DIRECTORY, args.CSV), 'rt') as csvfile:
             csvreader = csv.DictReader(csvfile)
             for row in csvreader:
                 date = row.get('donation_date')

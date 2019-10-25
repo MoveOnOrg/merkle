@@ -12,13 +12,14 @@ else:
     settings = {}
 
 ARG_DEFINITIONS = {
+    'BASE_DIRECTORY': 'Path to where files are located.',
     'FILE': 'File to decrypt.',
     'PGP_KEY': 'Full key for PGP',
     'PGP_PASS': 'Pass phrase for PGP'
 }
 
 REQUIRED_ARGS = [
-    'FILE', 'PGP_KEY', 'PGP_PASS'
+    'BASE_DIRECTORY', 'FILE', 'PGP_KEY', 'PGP_PASS'
 ]
 
 def main(args):
@@ -30,14 +31,14 @@ def main(args):
             all_required_args_set = False
 
     if all_required_args_set:
-        message = pgpy.PGPMessage.from_file('/tmp/%s' % args.FILE)
+        message = pgpy.PGPMessage.from_file('%s%s' % (args.BASE_DIRECTORY, args.FILE))
         private_key, _ = pgpy.PGPKey.from_blob(args.PGP_KEY)
 
         with private_key.unlock(args.PGP_PASS):
             csv = private_key.decrypt(message).message.decode("utf-8")
 
         new_file_name = '.'.join(args.FILE.split('.')[:-1])
-        file = open("/tmp/%s" % new_file_name, "w")
+        file = open("%s%s" % (args.BASE_DIRECTORY, new_file_name), "w")
         file.write(csv)
         file.close()
 

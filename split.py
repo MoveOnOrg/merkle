@@ -10,9 +10,12 @@ if os.path.exists(os.path.join(BASE_DIR, 'settings.py')):
 else:
     settings = {}
 
-ARG_DEFINITIONS = {'CSV': 'CSV file to split.'}
+ARG_DEFINITIONS = {
+    'BASE_DIRECTORY': 'Path to where files are located.',
+    'CSV': 'CSV file to split.'
+}
 
-REQUIRED_ARGS = ['CSV']
+REQUIRED_ARGS = ['BASE_DIRECTORY', 'CSV']
 
 def main(args):
     all_required_args_set = True
@@ -35,7 +38,7 @@ def main(args):
         for column in set_only_columns:
             files[column] = []
 
-        with open('/tmp/' + args.CSV, 'rt') as csvfile:
+        with open('%s%s' % (args.BASE_DIRECTORY, args.CSV), 'rt') as csvfile:
             csvreader = csv.DictReader(csvfile)
             for row in csvreader:
                 user_id = row.get('user_id')
@@ -82,7 +85,7 @@ def main(args):
             if len(files[file]) > 0:
                 filename = prefix + '-' + file + '.csv'
                 filenames.append(filename)
-                with open('/tmp/' + filename, 'w') as csvfile:
+                with open('%s%s' % (args.BASE_DIRECTORY, filename), 'w') as csvfile:
                     fieldnames = list(files[file][0].keys())
                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     writer.writeheader()

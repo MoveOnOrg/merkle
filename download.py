@@ -11,6 +11,7 @@ else:
     settings = {}
 
 ARG_DEFINITIONS = {
+    'BASE_DIRECTORY': 'Path to where files are located.',
     'DATE': 'Date of files to download.',
     'SFTP_HOST': 'Host for SFTP connection.',
     'SFTP_USER': 'User for SFTP connection.',
@@ -18,7 +19,7 @@ ARG_DEFINITIONS = {
 }
 
 REQUIRED_ARGS = [
-    'DATE', 'SFTP_HOST', 'SFTP_USER', 'SFTP_PASS'
+    'BASE_DIRECTORY', 'DATE', 'SFTP_HOST', 'SFTP_USER', 'SFTP_PASS'
 ]
 
 def main(args):
@@ -39,7 +40,7 @@ def main(args):
         downloaded = []
         for file_name in file_list:
             if args.DATE in file_name:
-                sftp.get(file_name, '/tmp/%s' % file_name)
+                sftp.get(file_name, '%s%s' % (args.BASE_DIRECTORY, file_name))
                 downloaded.append(file_name)
         return downloaded
 
