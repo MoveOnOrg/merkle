@@ -4,12 +4,10 @@ import sys
 
 import pgpy
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+from pywell.entry_points import run_from_cli
 
-if os.path.exists(os.path.join(BASE_DIR, 'settings.py')):
-    import settings
-else:
-    settings = {}
+
+DESCRIPTION = 'Decrypt PGP files with GPG.'
 
 ARG_DEFINITIONS = {
     'BASE_DIRECTORY': 'Path to where files are located.',
@@ -23,43 +21,18 @@ REQUIRED_ARGS = [
 ]
 
 def main(args):
-    all_required_args_set = True
+    message = pgpy.PGPMessage.from_file('%s%s' % (args.BASE_DIRECTORY, args.FILE))
+    private_key, _ = pgpy.PGPKey.from_blob(args.PGP_KEY)
 
-    for arg in REQUIRED_ARGS:
-        if not getattr(args, arg, False):
-            print('%s (%s) required, missing.' % (ARG_DEFINITIONS.get(arg), arg))
-            all_required_args_set = False
+    with private_key.unlock(args.PGP_PASS):
+        csv = private_key.decrypt(message).message.decode("utf-8")
 
-    if all_required_args_set:
-        message = pgpy.PGPMessage.from_file('%s%s' % (args.BASE_DIRECTORY, args.FILE))
-        private_key, _ = pgpy.PGPKey.from_blob(args.PGP_KEY)
+    new_file_name = '.'.join(args.FILE.split('.')[:-1])
+    file = open("%s%s" % (args.BASE_DIRECTORY, new_file_name), "w")
+    file.write(csv)
+    file.close()
 
-        with private_key.unlock(args.PGP_PASS):
-            csv = private_key.decrypt(message).message.decode("utf-8")
-
-        new_file_name = '.'.join(args.FILE.split('.')[:-1])
-        file = open("%s%s" % (args.BASE_DIRECTORY, new_file_name), "w")
-        file.write(csv)
-        file.close()
-
-        return new_file_name
+    return new_file_name
 
 if __name__ == '__main__':
-    """
-    Entry point via command line.
-    """
-    import argparse
-    import pprint
-
-    parser = argparse.ArgumentParser(
-        description=('Decrypt PGP files with GPG.')
-    )
-
-    for argname, helptext in ARG_DEFINITIONS.items():
-        parser.add_argument(
-            '--%s' % argname, dest=argname, help=helptext,
-            default=getattr(settings, argname, False)
-        )
-
-    args = parser.parse_args()
-    pprint.PrettyPrinter(indent=2).pprint(main(args))
+    run_from_cli(main, DESCRIPTION, ARG_DEFINITIONS, REQUIRED_ARGS)
