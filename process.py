@@ -12,18 +12,17 @@ import set_last
 import summarize
 import notify
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+from pywell.entry_points import run_from_cli, run_from_lamba
 
-if os.path.exists(os.path.join(BASE_DIR, 'settings.py')):
-    import settings
-else:
-    settings = {}
+
+DESCRIPTION = 'Process files.'
 
 ARG_DEFINITIONS = {
     'AK_BASEURL': 'ActionKit Base URL.',
     'AK_USER': 'ActionKit API username.',
     'AK_PASSWORD': 'ActionKit API password.',
     'AK_IMPORT_PAGE': 'ActionKit import page name.',
+    'BASE_DIRECTORY': 'Path to where files are located.',
     'CSV': 'CSV file to split.',
     'DB_HOST': 'Database host IP or hostname',
     'DB_PORT': 'Database port number',
@@ -42,7 +41,7 @@ ARG_DEFINITIONS = {
 }
 
 REQUIRED_ARGS = [
-    'AK_BASEURL', 'AK_USER', 'AK_PASSWORD', 'AK_IMPORT_PAGE',
+    'AK_BASEURL', 'AK_USER', 'AK_PASSWORD', 'AK_IMPORT_PAGE', 'BASE_DIRECTORY',
     'DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASS', 'DB_NAME', 'LAST_RUN_SCRIPT',
     'PGP_KEY', 'PGP_PASS', 'SFTP_HOST', 'SFTP_USER', 'SFTP_PASS'
 ]
@@ -57,65 +56,45 @@ def date_iso_to_short(date):
 
 
 def main(args):
-    all_required_args_set = True
-
-    for arg in REQUIRED_ARGS:
-        if not getattr(args, arg, False):
-            print('%s (%s) required, missing.' % (ARG_DEFINITIONS.get(arg), arg))
-            all_required_args_set = False
-
-    if all_required_args_set:
-        all_split_files = []
-        print('Checking date last run...')
-        last_run = date_iso_to_short(get_last.main(args))
-        print('Checking for new dates since %s...' % last_run)
-        args.SINCE = last_run
-        new_dates = check.main(args)
-        if len(new_dates) > 0:
-            for date in new_dates:
-                date_split_files = []
-                args.DATE = date
-                print('Downloading for %s...' % date)
-                files = download.main(args)
-                if len(files) > 0:
-                    for encrypted_file in files:
-                        args.FILE = encrypted_file
-                        print('Decrypting %s...' % args.FILE)
-                        decrypted_file = decrypt.main(args)
-                        if decrypted_file:
-                            print('Splitting %s...' % decrypted_file)
-                            args.CSV = decrypted_file
-                            split_files = split.main(args)
-                            date_split_files = date_split_files + split_files
-                if len(date_split_files):
-                    print('Importing for %s...' % date)
-                    for split_file in date_split_files:
-                        args.CSV = split_file
-                        import_to_ak.main(args)
-                        if "donations.csv" in args.CSV:
-                            args.TEXT = summarize.main(args)
-                            print('Notifying...')
-                            notify.main(args)
-                all_split_files = all_split_files + date_split_files
-            iso_dates = sorted([date_short_to_iso(date) for date in new_dates])
-            args.LAST_RUN_DATE = iso_dates[-1]
-            print('Setting last import date to %s...' % args.LAST_RUN_DATE)
-            set_last.main(args)
-        else:
-            print('No new dates found.')
-        return all_split_files
-
-
-class Struct:
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default JSON code."""
-    if isinstance(obj, datetime.datetime):
-        return obj.isoformat()
-    raise TypeError("Type %s not serializable." % type(obj))
+    all_split_files = []
+    print('Checking date last run...')
+    last_run = date_iso_to_short(get_last.main(args))
+    print('Checking for new dates since %s...' % last_run)
+    args.SINCE = last_run
+    new_dates = check.main(args)
+    if len(new_dates) > 0:
+        for date in new_dates:
+            date_split_files = []
+            args.DATE = date
+            print('Downloading for %s...' % date)
+            files = download.main(args)
+            if len(files) > 0:
+                for encrypted_file in files:
+                    args.FILE = encrypted_file
+                    print('Decrypting %s...' % args.FILE)
+                    decrypted_file = decrypt.main(args)
+                    if decrypted_file:
+                        print('Splitting %s...' % decrypted_file)
+                        args.CSV = decrypted_file
+                        split_files = split.main(args)
+                        date_split_files = date_split_files + split_files
+            if len(date_split_files):
+                print('Importing for %s...' % date)
+                for split_file in date_split_files:
+                    args.CSV = split_file
+                    import_to_ak.main(args)
+                args.FILES = ','.join(date_split_files)
+                args.TEXT = summarize.main(args)
+                print('Notifying...')
+                notify.main(args)
+            all_split_files = all_split_files + date_split_files
+        iso_dates = sorted([date_short_to_iso(date) for date in new_dates])
+        args.LAST_RUN_DATE = iso_dates[-1]
+        print('Setting last import date to %s...' % args.LAST_RUN_DATE)
+        set_last.main(args)
+    else:
+        print('No new dates found.')
+    return all_split_files
 
 
 def aws_lambda(event, context):
@@ -123,29 +102,8 @@ def aws_lambda(event, context):
     General entry point via Amazon Lambda event.
     """
     print('running aws_lambda')
-    args = {}
-    for argname, helptext in ARG_DEFINITIONS.items():
-        args[argname] = getattr(settings, argname, False)
-    args = Struct(**args)
-    return dumps(main(args), default=json_serial)
+    return run_from_lamba(main, DESCRIPTION, ARG_DEFINITIONS, REQUIRED_ARGS, event)
 
 
 if __name__ == '__main__':
-    """
-    Entry point via command line.
-    """
-    import argparse
-    import pprint
-
-    parser = argparse.ArgumentParser(
-        description=('Process files.')
-    )
-
-    for argname, helptext in ARG_DEFINITIONS.items():
-        parser.add_argument(
-            '--%s' % argname, dest=argname, help=helptext,
-            default=getattr(settings, argname, False)
-        )
-
-    args = parser.parse_args()
-    pprint.PrettyPrinter(indent=2).pprint(main(args))
+    run_from_cli(main, DESCRIPTION, ARG_DEFINITIONS, REQUIRED_ARGS)

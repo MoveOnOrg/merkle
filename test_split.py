@@ -32,6 +32,7 @@ class Test:
                 'home_phone': ''
             })
         args = {
+            'BASE_DIRECTORY': '/tmp/',
             'CSV': 'merkletest.csv'
         }
         args = Struct(**args)
@@ -39,25 +40,25 @@ class Test:
         files = main(args)
         # Make sure correct files were created
         correct_files = [
-            'merkletest-address.csv',
-            'merkletest-donations.csv',
-            'merkletest-first_name.csv',
-            'merkletest-invalid.csv',
-            'merkletest-last_name.csv'
+            'merkletest-address-user.csv',
+            'merkletest-donations-user.csv',
+            'merkletest-first_name-user.csv',
+            'merkletest-invalid-user.csv',
+            'merkletest-last_name-user.csv'
         ]
         assert set(files) == set(correct_files)
         # Make sure file contents are correct
-        with open('/tmp/merkletest-invalid.csv', 'rt') as csvfile:
+        with open('/tmp/merkletest-invalid-user.csv', 'rt') as csvfile:
             csvreader = csv.DictReader(csvfile)
             rows = list(csvreader)
             assert len(rows) == 1
             assert rows[0].get('address1', '') == '-'
-        with open('/tmp/merkletest-donations.csv', 'rt') as csvfile:
+        with open('/tmp/merkletest-donations-user.csv', 'rt') as csvfile:
             csvreader = csv.DictReader(csvfile)
             rows = list(csvreader)
             assert len(rows) == 1
             assert rows[0].get('donation_amount', '') == '100'
-        with open('/tmp/merkletest-first_name.csv', 'rt') as csvfile:
+        with open('/tmp/merkletest-first_name-user.csv', 'rt') as csvfile:
             csvreader = csv.DictReader(csvfile)
             rows = list(csvreader)
             assert len(rows) == 2
