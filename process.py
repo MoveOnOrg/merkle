@@ -83,10 +83,10 @@ def main(args):
                 for split_file in date_split_files:
                     args.CSV = split_file
                     import_to_ak.main(args)
-                    if "donations-email.csv" in args.CSV or "donations-user.csv" in args.CSV:
-                        args.TEXT = summarize.main(args)
-                        print('Notifying...')
-                        notify.main(args)
+                args.FILES = ','.join(date_split_files)
+                args.TEXT = summarize.main(args)
+                print('Notifying...')
+                notify.main(args)
             all_split_files = all_split_files + date_split_files
         iso_dates = sorted([date_short_to_iso(date) for date in new_dates])
         args.LAST_RUN_DATE = iso_dates[-1]
