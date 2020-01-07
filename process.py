@@ -59,27 +59,27 @@ def main(args):
     all_split_files = []
     print('Checking date last run...')
     last_run = date_iso_to_short(get_last.main(args))
-    print('Checking for new dates since %s...' % last_run)
+    print(('Checking for new dates since %s...' % last_run))
     args.SINCE = last_run
     new_dates = check.main(args)
     if len(new_dates) > 0:
         for date in new_dates:
             date_split_files = []
             args.DATE = date
-            print('Downloading for %s...' % date)
+            print(('Downloading for %s...' % date))
             files = download.main(args)
             if len(files) > 0:
                 for encrypted_file in files:
                     args.FILE = encrypted_file
-                    print('Decrypting %s...' % args.FILE)
+                    print(('Decrypting %s...' % args.FILE))
                     decrypted_file = decrypt.main(args)
                     if decrypted_file:
-                        print('Splitting %s...' % decrypted_file)
+                        print(('Splitting %s...' % decrypted_file))
                         args.CSV = decrypted_file
                         split_files = split.main(args)
                         date_split_files = date_split_files + split_files
             if len(date_split_files):
-                print('Importing for %s...' % date)
+                print(('Importing for %s...' % date))
                 for split_file in date_split_files:
                     args.CSV = split_file
                     import_to_ak.main(args)
@@ -90,7 +90,7 @@ def main(args):
             all_split_files = all_split_files + date_split_files
         iso_dates = sorted([date_short_to_iso(date) for date in new_dates])
         args.LAST_RUN_DATE = iso_dates[-1]
-        print('Setting last import date to %s...' % args.LAST_RUN_DATE)
+        print(('Setting last import date to %s...' % args.LAST_RUN_DATE))
         set_last.main(args)
     else:
         print('No new dates found.')
