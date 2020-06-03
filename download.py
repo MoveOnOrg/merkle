@@ -28,9 +28,10 @@ def main(args):
     file_list = sftp.listdir('.')
     downloaded = []
     for file_name in file_list:
-        if args.DATE in file_name:
+        if args.DATE in file_name and 'csv' in file_name:
             sftp.get(file_name, '%s%s' % (args.BASE_DIRECTORY, file_name))
             downloaded.append(file_name)
+    print('newly downloaded', downloaded)
     return downloaded
 
 if __name__ == '__main__':

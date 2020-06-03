@@ -13,3 +13,15 @@ Travis is setup to auto-deploy this repo on commits to the `main` branch. Deploy
 3. `rm secrets.tar`
 4. `git add .travis.yml`
 5. `git add secrets.tar.enc`
+
+
+## Environment
+
+Python 3.6
+
+Setup with:
+
+  virtualenv -p python3 venv
+  source venv/bin/activate
+  pip install -r requirements.txt
+

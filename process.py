@@ -38,6 +38,7 @@ ARG_DEFINITIONS = {
     'SFTP_PASS': 'Pass for SFTP connection.',
     'SLACK_WEBHOOK': 'Web hook URL for Slack.',
     'SLACK_CHANNEL': 'Slack channel to send to.',
+    'SINCE': 'Override date Since to import',
 }
 
 REQUIRED_ARGS = [
@@ -58,8 +59,11 @@ def date_iso_to_short(date):
 def main(args):
     all_split_files = []
     print('Checking date last run...')
-    last_run = date_iso_to_short(get_last.main(args))
-    print('Checking for new dates since %s...' % last_run)
+    if args.SINCE:
+        last_run = args.SINCE
+    else:
+        last_run = date_iso_to_short(get_last.main(args))
+        print('Checking for new dates since %s...' % last_run)
     args.SINCE = last_run
     new_dates = check.main(args)
     if len(new_dates) > 0:
@@ -82,6 +86,7 @@ def main(args):
                 print('Importing for %s...' % date)
                 for split_file in date_split_files:
                     args.CSV = split_file
+                    print('uploading to AK', split_file)
                     import_to_ak.main(args)
                 args.FILES = ','.join(date_split_files)
                 args.TEXT = summarize.main(args)
