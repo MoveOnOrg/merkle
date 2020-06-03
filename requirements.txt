@@ -1,7 +1,7 @@
 paramiko==2.4.2
 PGPy==0.5.2
 psycopg2-binary==2.8.3
-pytest==5.0.1
+pytest==5.4.3
 pytest-cov==2.7.1
 -e git+https://github.com/MoveOnOrg/python-actionkit.git@public-master#egg=python-actionkit
 python-coveralls==2.9.3
