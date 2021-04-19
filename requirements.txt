@@ -1,5 +1,5 @@
 paramiko==2.4.2
-PGPy==0.5.2
+PGPy==0.5.4
 psycopg2-binary==2.8.3
 pytest==5.0.1
 pytest-cov==2.7.1
